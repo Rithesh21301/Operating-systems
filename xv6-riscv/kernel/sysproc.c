@@ -56,7 +56,7 @@ sys_sleep(void)
 
   argint(0, &n);
 
-
+  backtrace();
 
   if(n < 0)
     n = 0;

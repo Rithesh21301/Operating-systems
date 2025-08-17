@@ -49,7 +49,20 @@ printint(long long xx, int base, int sign)
     consputc(buf[i]);
 }
 
+void
+backtrace(void)
+{
+    uint64 fp = r_fp();  // current frame pointer
+    printf("backtrace:\n");
 
+    // Loop until we leave kernel stack
+    while (fp && fp >= (uint64)myproc()->kstack &&
+              fp < (uint64)myproc()->kstack + PGSIZE) {
+        uint64 ra = *((uint64*)(fp - 8));   // return address
+        printf("0x%lx\n", ra);
+        fp = *((uint64*)(fp - 16));         // previous frame pointer
+    }
+}
 
 static void
 printptr(uint64 x)
@@ -167,7 +180,7 @@ panic(char *s)
   pr.locking = 0;
   printf("panic: ");
   printf("%s\n", s);
-
+  backtrace();
 
   panicked = 1; // freeze uart output from other CPUs
   for(;;)

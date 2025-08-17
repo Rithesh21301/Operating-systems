@@ -55,6 +55,9 @@ sys_sleep(void)
   uint ticks0;
 
   argint(0, &n);
+
+
+
   if(n < 0)
     n = 0;
   acquire(&tickslock);
@@ -90,4 +93,15 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+uint64
+sys_trace(void)
+{
+  int mask;
+  argint(0, &mask);
+
+  struct proc *p = myproc();
+  p->trace_mask = mask;
+  return 0;
 }

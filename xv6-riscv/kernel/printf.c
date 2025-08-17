@@ -49,6 +49,8 @@ printint(long long xx, int base, int sign)
     consputc(buf[i]);
 }
 
+
+
 static void
 printptr(uint64 x)
 {
@@ -165,6 +167,8 @@ panic(char *s)
   pr.locking = 0;
   printf("panic: ");
   printf("%s\n", s);
+
+
   panicked = 1; // freeze uart output from other CPUs
   for(;;)
     ;

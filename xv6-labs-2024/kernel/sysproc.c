@@ -100,20 +100,33 @@ sys_kpgtbl(void)
   return 0;
 }
 
-int
+uint64
 sys_pgaccess(void)
 {
   uint64 va;        // starting virtual address
   int n;            // number of pages
   uint64 abits;     // user-space pointer to store result
+  uint32 mask = 0;
+
   argaddr(0, &va);
-  argint(1, &n);
+  argint(1, &n);  
   argaddr(2, &abits);
+
+  struct proc *p = myproc();
+
+  for(int i = 0; i < n && i < 32; i++) {
+    pte_t *pte = walk(p->pagetable, va + i*PGSIZE, 0);
+    if(pte && (*pte & PTE_A)) {
+      mask |= (1 << i);     // set bit i
+      *pte &= ~PTE_A;       // clear accessed bit
+      sfence_vma();
+    }
+  }
 
 
   // TODO: implement proper accessed-bit logic
-  uint32 mask = 0;
-  if (copyout(myproc()->pagetable, abits, (char *)&mask, sizeof(mask)) < 0)
+
+  if (copyout(p->pagetable, abits, (char *)&mask, sizeof(mask)) < 0)
     return -1;
 
   return 0;
